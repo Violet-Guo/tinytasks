@@ -65,9 +65,16 @@ def reduce_sums(probabilities):
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--n", default=1, type=int, help="number of slots per machine")
-	parser.add_argument("--t", default=100, type=int, help="length of simulation")
+	parser.add_argument("file", type=str, help="data file path")
 	args = parser.parse_args()
-	machine = Machine(args.n)
+	data_file = open(args.file)
+	tasks = []
+	for line in data_file:
+		split_line = line.split()
+		new_task = Task(split_line[0], split_line[10], split_line[13], split_line[14])
+		tasks.append(new_task)
+	machine = Machine(args.n, tasks)
+
 	curr_time = 0
 	result = {DISK_STAGE:{}, CPU_STAGE:{}, NETWORK_STAGE:{}}
 	for stage in result:
