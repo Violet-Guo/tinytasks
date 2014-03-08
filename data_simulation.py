@@ -20,33 +20,33 @@ class Simulator:
 		self.machines = list()
 		count = 0
 		while count < self.num_machines:
-			self.machines.append(Machine(count, num_slots, self.debug))
+			self.machines.append(Machine(count, num_slots, self.debug, tasks))
 			count += 1
 		self.assign_tasks_to_machines()
 
 	def assign_tasks_to_machines(self):
-		while True:
+		continue_assignment = True
+		while continue_assignment:
+			continue_assignment = False
 			for machine in self.machines:
 				if self.tasks.qsize() == 0:
 					return
-				if self.all_machines_full():
-					return
-				task = self.tasks.get()
-				machine.add_task(task)
-
-	def all_machines_full(self):
-		for machine in self.machines:
-			if not machine.is_full():
-				return False
-		return True
+				if not machine.is_full():
+					task = self.tasks.get()
+					machine.add_task(task)
+				if not machine.is_full():
+					continue_assignment = True
 
 	def run(self):
 		time_count = 0
-		while not self.simulation_finished(): #Need each machine to be done AND tasks list to be empty
+		continue_simulation = True
+		while continue_simulation: #Need each machine to be done AND tasks list to be empty
+			continue_simulation = False
 			for machine in self.machines:
 				if not machine.is_empty():
 					machine.run()
-			self.assign_tasks_to_machines()
+				if not machine.is_empty():
+					continue_simulation = True
 			self.debug("time elapse: " + str(time_count))
 			time_count += 1
 		print "FINISHED: total time elapsed- ", time_count
@@ -54,22 +54,21 @@ class Simulator:
 
 	def test_run(self):
 		time_count = 0
-		while not self.simulation_finished(): #Need each machine to be done AND tasks list to be empty
+		continue_simulation = True
+		while continue_simulation: #Need each machine to be done AND tasks list to be empty
+			continue_simulation = False
 			for machine in self.machines:
 				if not machine.is_empty():
 					machine.run()
-			self.assign_tasks_to_machines()
+				if not machine.is_empty():
+					continue_simulation = True
+			if not continue_simulation:
+				break
 			time_count += 1
 		result = []
 		for machine in self.machines:
 			result.append(machine.counts)
 		return result
-
-	def simulation_finished(self):
-		for machine in self.machines:
-			if not machine.is_empty():
-				return False
-		return self.tasks.qsize() == 0
 
 	def plot_graphs(self):
 		for machine in self.machines:

@@ -7,7 +7,8 @@ class Machine:
 	Upon each run, the machine will check if any tasks are complete and update
 	accordingly.
 	'''
-	def __init__(self, machine_num, num_slots, debug):
+	def __init__(self, machine_num, num_slots, debug, simulator_tasks):
+		self.simulator_tasks = simulator_tasks
 		self.debug_flag = debug
 		self.machine_num = machine_num
 		self.num_slots = num_slots
@@ -32,6 +33,9 @@ class Machine:
 			if not task.is_complete():
 				new_tasks.put(task)
 			task_count -= 1
+		while new_tasks.qsize() < self.num_slots and self.simulator_tasks.qsize() > 0:
+			task = self.simulator_tasks.get()
+			new_tasks.put(task)
 		self.current_tasks = new_tasks
 		self.update_counts(stage_counts)
 
@@ -53,4 +57,5 @@ class Machine:
 
 	def debug(self, debug_str):
 		if self.debug_flag:
-			print(debug_str)
+			return
+			#print(debug_str)
