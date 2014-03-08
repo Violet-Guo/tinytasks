@@ -15,6 +15,9 @@ class Task:
 	'''
 	def __init__(self, job, input_time, cpu_time, output_time, input_stage, output_stage):
 		self.job = job
+		self.input_time = input_time
+		self.cpu_time = cpu_time
+		self.output_time = output_time
 		self.stages = {INPUT_STAGE: input_stage, COMPUTING_STAGE: CPU_STAGE, OUTPUT_STAGE: output_stage}
 		self.times = [input_time, cpu_time, output_time]
 		self.curr_stage = INPUT_STAGE
@@ -30,7 +33,6 @@ class Task:
 		if self.times[self.curr_stage] == 0:
 			self.curr_stage += 1
 
-
 class MapTask(Task):
 	'''
 	Represents a reduce ask, where the input stage is disk and
@@ -38,6 +40,12 @@ class MapTask(Task):
 	'''
 	def __init__(self, job, input_time, cpu_time, output_time):
 		Task.__init__(self, job, input_time, cpu_time, output_time, DISK_STAGE, DISK_STAGE)
+
+	def __str__(self):
+		result = "MapTask with job name: " + self.job + ", input time of " + str(self.input_time) + \
+		", cpu time of " + str(self.cpu_time) + ", and output time of " + str(self.output_time)
+		return result
+
 
 
 class ReduceTask(Task):
@@ -47,5 +55,10 @@ class ReduceTask(Task):
 	'''
 	def __init__(self, job, input_time, cpu_time, output_time):
 		Task.__init__(self, job, input_time, cpu_time, output_time, NETWORK_STAGE, DISK_STAGE)
+
+	def __str__(self):
+		result = "ReduceTask with job name: " + self.job + ", input time of " + str(self.input_time) + \
+		", cpu time of " + str(self.cpu_time) + ", and output time of " + str(self.output_time)
+		return result
 
 

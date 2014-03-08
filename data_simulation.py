@@ -16,19 +16,20 @@ class Simulator:
 		self.tasks = tasks
 		self.machines = list()
 		count = 0
-		while count < self.machines:
-			self.machines.append(Machine(num_slots, Queue()))
+		while count < self.num_machines:
+			self.machines.append(Machine(num_slots))
 			count += 1
-		self.initialize_machines()
+		self.assign_tasks_to_machines()
 
-	def initialize_machines(self):
-		for machine in self.machines():
-			if self.tasks.qsize() == 0:
-				return
-			if self.all_machines_full():
-				return
-			task = self.tasks.get()
-			machine.add_task(task)
+	def assign_tasks_to_machines(self):
+		while True:
+			for machine in self.machines:
+				if self.tasks.qsize() == 0:
+					return
+				if self.all_machines_full():
+					return
+				task = self.tasks.get()
+				machine.add_task(task)
 
 	def all_machines_full(self):
 		for machine in self.machines:
@@ -37,21 +38,28 @@ class Simulator:
 		return True
 
 	def run(self):
-		result = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
-		for stage in result:
-			new_dict = {}
-			count = 0
-			while count <= args.n:
-				new_dict[count] = 0
-				count += 1
-			result[stage] = new_dict
+		time_count = 0
 		while not self.simulation_finished(): #Need each machine to be done AND tasks list to be empty
 			for machine in self.machines:
-				stage_counts = machine.run()
-				for stage in stage_counts.keys():
-					count = stage_counts[stage]
-					result[stage][count] += 1
-		plot_results(result)
+				if not machine.is_empty():
+					machine.run()
+			self.assign_tasks_to_machines()
+			time_count += 1
+		print "total time elapsed: ", time_count
+		self.plot_graphs()
+
+	def test_run(self):
+		time_count = 0
+		while not self.simulation_finished(): #Need each machine to be done AND tasks list to be empty
+			for machine in self.machines:
+				if not machine.is_empty():
+					machine.run()
+			self.assign_tasks_to_machines()
+			time_count += 1
+		result = []
+		for machine in self.machines:
+			result.append(machine.counts)
+		return result
 
 	def simulation_finished(self):
 		for machine in self.machines:
@@ -59,6 +67,9 @@ class Simulator:
 				return False
 		return self.tasks.qsize() == 0
 
+	def plot_graphs(self):
+		for machine in self.machines:
+			plot_results(machine.counts)
 
 def plot_results(result):
 	input_sum = sum(result[NETWORK_STAGE].values()) + 0.0
@@ -85,29 +96,34 @@ def parse_tasks(data_file, disk_throughput, network_bandwidth):
 		split_line = line.split("\t")
 		job_type = split_line[2]
 		if job_type == 'MapAttempt' or job_type == 'ReduceAttempt':
-			job_name = split[1]
-			cpu_time = split_line[11]
+			job_name = split_line[1]
+			cpu_time = int(split_line[11])
 			if job_type == 'MapAttempt':
-				input_time = 
-				output_time = 
+				input_size = split_line[12] 
+				output_size = split_line[15] 
 				read_speed = disk_throughput
 				write_speed = disk_throughput
+				if cpu_time != '' and input_size != '' and output_size != '':
+					new_task = MapTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
+						math.ceil(read_time_milliseconds(output_size, write_speed)))
+					tasks.put(new_task)
 			else:
-				input_size = 
-				output_size =
+				input_size = split_line[10] 
+				output_size = split_line[13]
 				read_speed = network_bandwidth
 				write_speed = disk_throughput 
-			if cpu_time != '' and input_size != '' and output_size != '':
-				new_task = Task(job_name, cpu_time, read_time_milliseconds(input_size, read_speed), \
-					read_time_milliseconds(output_size, write_speed)) #TODO: Change this
-				tasks.put(new_task)
+				if cpu_time != '' and input_size != '' and output_size != '':
+					new_task = ReduceTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
+						math.ceil(read_time_milliseconds(output_size, write_speed)))
+					tasks.put(new_task)
 	return tasks
 
 def read_time_milliseconds(size, rate=10.0):
 	''' 
-	Given a size in bytes, converts it to the number of milliseconds it'd take 
+	Given a size in bytes, converts it to the number of microseconds it'd take 
 	to process that size of data. Default rate is 10 MB/ sec.
 	'''
+	size = int(size)
 	result = size / (10.0**6)
 	result = (result / rate) * 1000
 	return result

@@ -10,6 +10,14 @@ class Machine:
 	def __init__(self, num_slots):
 		self.num_slots = num_slots
 		self.current_tasks = Queue()
+		self.counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
+		for stage in self.counts:
+			new_dict = {}
+			count = 0
+			while count <= num_slots:
+				new_dict[count] = 0
+				count += 1
+			self.counts[stage] = new_dict
 
 	def run(self):
 		stage_counts = {DISK_STAGE: 0, CPU_STAGE: 0, NETWORK_STAGE: 0}
@@ -23,7 +31,12 @@ class Machine:
 				new_tasks.put(task)
 			task_count -= 1
 		self.current_tasks = new_tasks
-		return stage_counts
+		self.update_counts(stage_counts)
+
+	def update_counts(self, stage_counts):
+		for stage in stage_counts.keys():
+			count = stage_counts[stage]
+			self.counts[stage][count] += 1	
 
 	def add_task(self, task):
 		self.current_tasks.put(task)
