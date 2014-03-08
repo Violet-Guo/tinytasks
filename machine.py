@@ -7,7 +7,9 @@ class Machine:
 	Upon each run, the machine will check if any tasks are complete and update
 	accordingly.
 	'''
-	def __init__(self, num_slots):
+	def __init__(self, machine_num, num_slots, debug):
+		self.debug_flag = debug
+		self.machine_num = machine_num
 		self.num_slots = num_slots
 		self.current_tasks = Queue()
 		self.counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
@@ -34,8 +36,10 @@ class Machine:
 		self.update_counts(stage_counts)
 
 	def update_counts(self, stage_counts):
+		self.debug("stage_counts: " + str(stage_counts))
 		for stage in stage_counts.keys():
 			count = stage_counts[stage]
+			self.debug("stage: " + str(stage)+ ", count: " + str(count))
 			self.counts[stage][count] += 1	
 
 	def add_task(self, task):
@@ -46,3 +50,7 @@ class Machine:
 
 	def is_empty(self):
 		return self.current_tasks.qsize() == 0 
+
+	def debug(self, debug_str):
+		if self.debug_flag:
+			print(debug_str)

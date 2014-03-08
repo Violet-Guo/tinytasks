@@ -6,9 +6,12 @@ from Queue import Queue
 from task import *
 from machine import *
 
+RESULT_FILENAME = "results/test_two_machines/machine"
+
 class Simulator:
 
-	def __init__(self, num_machines, num_slots, disk_throughput, network_bandwidth, tasks):
+	def __init__(self, num_machines, num_slots, disk_throughput, network_bandwidth, tasks, debug):
+		self.debug_flag = debug
 		self.num_machines = num_machines
 		self.num_slots = num_slots
 		self.disk_throughput = disk_throughput
@@ -17,7 +20,7 @@ class Simulator:
 		self.machines = list()
 		count = 0
 		while count < self.num_machines:
-			self.machines.append(Machine(num_slots))
+			self.machines.append(Machine(count, num_slots, self.debug))
 			count += 1
 		self.assign_tasks_to_machines()
 
@@ -44,8 +47,9 @@ class Simulator:
 				if not machine.is_empty():
 					machine.run()
 			self.assign_tasks_to_machines()
+			self.debug("time elapse: " + str(time_count))
 			time_count += 1
-		print "total time elapsed: ", time_count
+		print "FINISHED: total time elapsed- ", time_count
 		self.plot_graphs()
 
 	def test_run(self):
@@ -69,16 +73,22 @@ class Simulator:
 
 	def plot_graphs(self):
 		for machine in self.machines:
-			plot_results(machine.counts)
+			self.debug(machine.counts)
+			plot_results(machine.counts, machine.machine_num)
 
-def plot_results(result):
+	def debug(self, debug_str):
+		if self.debug_flag:
+			print(debug_str)
+
+def plot_results(result, machine_num):
 	input_sum = sum(result[NETWORK_STAGE].values()) + 0.0
 	cpu_sum = sum(result[CPU_STAGE].values()) + 0.0
 	output_sum = sum(result[DISK_STAGE].values()) + 0.0
 	plt.plot(result[NETWORK_STAGE].keys(), reduce_sums(map(lambda x: x/input_sum, result[NETWORK_STAGE].values())), 
 		result[CPU_STAGE].keys(), reduce_sums(map(lambda x: x/cpu_sum, result[CPU_STAGE].values())),
 		result[DISK_STAGE].keys(), reduce_sums(map(lambda x: x/output_sum, result[DISK_STAGE].values())))
-	plt.show()
+	filename = RESULT_FILENAME +  str(machine_num) + ".png"
+	plt.savefig(filename)
 
 def reduce_sums(probabilities):
 	count = 0
@@ -106,6 +116,7 @@ def parse_tasks(data_file, disk_throughput, network_bandwidth):
 				if cpu_time != '' and input_size != '' and output_size != '':
 					new_task = MapTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
 						math.ceil(read_time_milliseconds(output_size, write_speed)))
+					print(new_task)
 					tasks.put(new_task)
 			else:
 				input_size = split_line[10] 
@@ -115,6 +126,7 @@ def parse_tasks(data_file, disk_throughput, network_bandwidth):
 				if cpu_time != '' and input_size != '' and output_size != '':
 					new_task = ReduceTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
 						math.ceil(read_time_milliseconds(output_size, write_speed)))
+					print(new_task)
 					tasks.put(new_task)
 	return tasks
 
@@ -130,6 +142,7 @@ def read_time_milliseconds(size, rate=10.0):
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
+	parser.add_argument("--debug", action="store_true", help="print debugging statements")
 	parser.add_argument("--s", default=1, type=int, help="number of slots per machine")
 	parser.add_argument("--m", default=1, type=int, help="number of machines")
 	parser.add_argument("--d", default=10, type=int, help="disk throughput in MB/s")
@@ -138,5 +151,5 @@ if __name__ == "__main__":
 	args = parser.parse_args()
 	data_file = open(args.file)
 	tasks = parse_tasks(data_file, args.d, args.n)
-	simulator = Simulator(args.m, args.s, args.d, args.n, tasks)
+	simulator = Simulator(args.m, args.s, args.d, args.n, tasks, args.debug)
 	simulator.run()
