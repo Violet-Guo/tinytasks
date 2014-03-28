@@ -25,13 +25,31 @@ class Task:
 	def get_curr_stage(self):
 		return self.stages[self.curr_stage]
 
+	def time_left(self):
+		return self.times[INPUT_STAGE] + self.times[COMPUTING_STAGE] + self.times[OUTPUT_STAGE]
+
 	def is_complete(self):
 		return self.times[OUTPUT_STAGE] == 0
 
-	def decrement_len(self):
+	def decrement_one(self):
 		self.times[self.curr_stage] -= 1
 		if self.times[self.curr_stage] == 0:
 			self.curr_stage += 1
+
+	def decrement_length(self, time):
+		if time > self.time_left():
+			raise Exception("Trying to decrement more time than what's left")
+		for stage in range(3):
+			if stage < self.curr_stage:
+				continue
+			curr_stage_time = self.times[self.curr_stage]
+			if curr_stage_time <= time:
+				self.times[self.curr_stage] -= curr_stage_time
+				time -= curr_stage_time
+				self.curr_stage += 1
+			else:
+				self.times[self.curr_stage] -= time
+				break
 
 class MapTask(Task):
 	'''

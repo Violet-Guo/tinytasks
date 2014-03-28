@@ -29,7 +29,7 @@ class Machine:
 		while task_count > 0:
 			task = self.current_tasks.get()
 			stage_counts[task.get_curr_stage()] += 1
-			task.decrement_len()
+			task.decrement_one()
 			if not task.is_complete():
 				new_tasks.put(task)
 			task_count -= 1
@@ -40,11 +40,11 @@ class Machine:
 		self.update_counts(stage_counts)
 
 	def update_counts(self, stage_counts):
-		logging.debug(" stage_counts: " + str(stage_counts))
+		logging.debug("BEFORE stage_counts: " + str(stage_counts))
 		for stage in stage_counts.keys():
 			count = stage_counts[stage]
-			logging.debug(" stage: " + str(stage)+ ", count: " + str(count))
 			self.counts[stage][count] += 1	
+		logging.debug("AFTER stage_counts: " + str(stage)+ ", count: " + str(count))
 
 	def add_task(self, task):
 		self.current_tasks.put(task)
