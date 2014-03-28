@@ -45,20 +45,20 @@ class TestingSimulation(unittest.TestCase):
         machine_queue = Queue()
         machine_queue.put(MapTask("test map task", 1, 1, 1))
         machine_queue.put(ReduceTask("test reduce task", 1, 1, 1))
-        machine = Machine(0, 2, machine_queue)
-        machine.run()
-        machine.run()
+        machine = Machine(0, 2, TaskHandler(machine_queue))
+        machine.run(1)
+        machine.run(1)
         one_run = {DISK_STAGE: {0: 1, 1: 1, 2:0}, CPU_STAGE: {0: 2, 1: 0, 2:0}, NETWORK_STAGE: {0: 1, 1: 1, 2:0}} 
         self.assertEqual(machine.counts, one_run)
         self.assertTrue(machine.is_full())
         self.assertFalse(machine.is_empty())
         two_run = {DISK_STAGE: {0: 2, 1: 1, 2:0}, CPU_STAGE: {0: 2, 1: 0, 2:1}, NETWORK_STAGE: {0: 2, 1: 1, 2:0}} 
-        machine.run()
+        machine.run(1)
         self.assertEqual(machine.counts, two_run)
         self.assertTrue(machine.is_full())
         self.assertFalse(machine.is_empty())
         three_run = {DISK_STAGE: {0: 2, 1: 1, 2:1}, CPU_STAGE: {0: 3, 1: 0, 2:1}, NETWORK_STAGE: {0: 3, 1: 1, 2:0}} 
-        machine.run()
+        machine.run(1)
         self.assertEqual(machine.counts, three_run)
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
@@ -87,20 +87,6 @@ class TestingSimulation(unittest.TestCase):
         expected_result = [{'disk': {0:4, 1:8}, 'cpu':{0:8, 1:4}, 'network':{0:12, 1:0}}]
         expected_result.append({'disk': {0:4, 1:8}, 'cpu':{0:8, 1:4}, 'network':{0:12, 1:0}})
         self.assertEqual(expected_result, result)
-
-    def test_decrement_one(self):
-        task = Task("test_task", 1, 1, 1, 'disk', 'network')
-        task.decrement_length(3)
-        self.assertTrue(task.is_complete())
-        self.assertEqual(task.times, [0, 0, 0])
-        task = Task("test_task", 2, 2, 2, 'disk', 'network')
-        task.decrement_length(3)
-        self.assertEqual(task.get_curr_stage(), 'cpu')
-        self.assertEqual(task.times, [0, 1, 2])
-        task = Task("test_task", 3, 2, 1, 'disk', 'network')
-        task.decrement_length(3)
-        self.assertEqual(task.get_curr_stage(), 'cpu')
-        self.assertEqual(task.times, [0, 2, 1])
 
     def test_taskhandler(self):
         data_file = open("data/test_map.data")
@@ -153,8 +139,17 @@ class TestingSimulation(unittest.TestCase):
         comp_set.add(15)
         self.assertEqual(task_handler.times_set, comp_set)
         shortest_task_time = task_handler.get_shortest_task_time()
-        self.assertEqual(shortest_task_time, 14)
+        self.assertEqual(shortest_task_time, 11)
+        shortest_task_time = task_handler.get_shortest_task_time()
+        self.assertEqual(shortest_task_time, 1)
+
+    def test_empty_task_handler(self):
+        task_handler = TaskHandler(Queue())
+        new_task = task_handler.get_new_task()
+        self.assertEqual(new_task, None)
 
 
 if __name__ == '__main__':
+    #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
     unittest.main()
+

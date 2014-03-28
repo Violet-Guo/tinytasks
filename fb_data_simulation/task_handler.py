@@ -15,12 +15,15 @@ class TaskHandler:
         self.times_set = set()
 
     def get_shortest_task_time(self):
+        if len(self.task_heap) == 0:
+            return None
         shortest_time = heappop(self.task_heap)
+        time_diff = shortest_time - self.current_time
         self.current_time = shortest_time
         self.times_set.remove(shortest_time)
         logging.debug("Times set: " + str(self.times_set))
         logging.debug("Task heap: " + str(self.task_heap))
-        return shortest_time
+        return time_diff
 
     def get_new_task(self):
         if self.unassigned_tasks.qsize() == 0:
@@ -34,4 +37,7 @@ class TaskHandler:
             logging.debug("Times set: " + str(self.times_set))
             logging.debug("Task heap: " + str(self.task_heap))
             return new_task
+
+    def empty_tasks(self):
+        return self.unassigned_tasks.qsize() == 0
             
