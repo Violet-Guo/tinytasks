@@ -4,7 +4,7 @@ from data_simulation import *
 from task_handler import *
 
 class TestingSimulation(unittest.TestCase):
-
+    
     def test_task(self):
         map_task = MapTask("test map task", 1, 2, 3)
         self.assertFalse(map_task.is_complete())
@@ -93,8 +93,10 @@ class TestingSimulation(unittest.TestCase):
         tasks = parse_tasks(data_file, 10, 10)
         task_handler = TaskHandler(tasks)
         comp_set = set()
+        comp_set.add(1)
+        comp_set.add(2)
         comp_set.add(3)
-        comp_list = [3,]
+        comp_list = [1, 2, 3]
         #putting in a new task
         new_task = task_handler.get_new_task()
         self.assertEqual(task_handler.task_heap, comp_list)
@@ -104,42 +106,41 @@ class TestingSimulation(unittest.TestCase):
         self.assertEqual(task_handler.times_set, comp_set)
         shortest_task_time = task_handler.get_shortest_task_time()
         #now the times should be 6
-        comp_set = set()
-        comp_set.add(6)
-        comp_list = [6,]
+        comp_set.remove(1)
+        comp_set.add(4)
+        comp_list = [2, 3, 4]
         new_task = task_handler.get_new_task()
         self.assertEqual(task_handler.task_heap, comp_list)
         self.assertEqual(task_handler.times_set, comp_set)
-
+    
     def test_taskhandler_two(self):
         data_file = open("data/variable_test_map.data")
         tasks = parse_tasks(data_file, 10, 10)
         task_handler = TaskHandler(tasks)
         comp_set = set()
+        comp_set.add(1)
+        comp_set.add(2)
         comp_set.add(3)
-        comp_list = [3,]
         #putting in a new task
         new_task = task_handler.get_new_task()
-        self.assertEqual(task_handler.task_heap, comp_list)
         self.assertEqual(task_handler.times_set, comp_set)
         comp_set.add(14)
-        comp_list = [3, 14]
+        comp_list = [1, 2, 3, 14]
         new_task = task_handler.get_new_task()
         self.assertEqual(task_handler.task_heap, comp_list)
         self.assertEqual(task_handler.times_set, comp_set)
         shortest_task_time = task_handler.get_shortest_task_time()
-        self.assertEqual(shortest_task_time, 3)
+        self.assertEqual(shortest_task_time, 1)
         #now the times should be 6
-        comp_set = set()
-        comp_set.add(14)
-        comp_list = [14,]
-        self.assertEqual(task_handler.task_heap, comp_list)
+        comp_set.remove(1)
         self.assertEqual(task_handler.times_set, comp_set)
         new_task = task_handler.get_new_task()
-        comp_set.add(15)
+        comp_set.add(12)
+        comp_set.add(11)
+        comp_set.add(13)
         self.assertEqual(task_handler.times_set, comp_set)
         shortest_task_time = task_handler.get_shortest_task_time()
-        self.assertEqual(shortest_task_time, 11)
+        self.assertEqual(shortest_task_time, 1)
         shortest_task_time = task_handler.get_shortest_task_time()
         self.assertEqual(shortest_task_time, 1)
 

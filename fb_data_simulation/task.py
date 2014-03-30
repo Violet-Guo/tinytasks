@@ -25,6 +25,9 @@ class Task:
 	def get_curr_stage(self):
 		return self.stages[self.curr_stage]
 
+	def get_curr_stage_time(self):
+		return self.times[self.curr_stage]
+
 	def time_left(self):
 		return self.times[INPUT_STAGE] + self.times[COMPUTING_STAGE] + self.times[OUTPUT_STAGE]
 
@@ -37,6 +40,16 @@ class Task:
 		self.times[self.curr_stage] -= 1
 		if self.times[self.curr_stage] == 0:
 			self.curr_stage += 1
+
+	def decrement_len(self, length):
+		if self.times[self.curr_stage] < length:
+			raise Exception("Trying to decrement more time than what's left")
+		self.times[self.curr_stage] -= length
+		if self.times[self.curr_stage] == 0:
+			self.curr_stage += 1
+
+
+
 
 class MapTask(Task):
 	'''

@@ -24,29 +24,29 @@ class Machine:
 			self.counts[stage] = new_dict
 
 	def run(self, run_time):
+		logging.debug("Machine " + str(self.machine_num) + " running")
 		stage_counts = {DISK_STAGE: 0, CPU_STAGE: 0, NETWORK_STAGE: 0}
 		new_tasks = Queue()
 		task_count = self.current_tasks.qsize()
-		for tick in range(run_time):
-			while task_count > 0:
-				task = self.current_tasks.get()
-				stage_counts[task.get_curr_stage()] += 1
-				task.decrement_one()
-				if not task.is_complete():
-					new_tasks.put(task)
-				task_count -= 1
-			while new_tasks.qsize() < self.num_slots and not self.task_handler.empty_tasks():
-				task = self.task_handler.get_new_task()
+		while task_count > 0:
+			task = self.current_tasks.get()
+			stage_counts[task.get_curr_stage()] += 1
+			task.decrement_len(run_time)
+			if not task.is_complete():
 				new_tasks.put(task)
-			self.current_tasks = new_tasks
-			self.update_counts(stage_counts)
+			task_count -= 1
+		while new_tasks.qsize() < self.num_slots and not self.task_handler.empty_tasks():
+			task = self.task_handler.get_new_task()
+			new_tasks.put(task)
+		self.current_tasks = new_tasks
+		self.update_counts(stage_counts, run_time)
 
-	def update_counts(self, stage_counts):
+	def update_counts(self, stage_counts, num_seconds):
 		logging.debug("BEFORE stage_counts: " + str(stage_counts))
 		for stage in stage_counts.keys():
 			count = stage_counts[stage]
-			self.counts[stage][count] += 1	
-		logging.debug("AFTER stage_counts: " + str(stage)+ ", count: " + str(count))
+			self.counts[stage][count] += num_seconds	
+		logging.debug("AFTER stage_counts: " + str(stage)+ ", counts: " + str(self.counts))
 
 	def add_task(self, task):
 		self.current_tasks.put(task)

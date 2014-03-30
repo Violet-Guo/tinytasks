@@ -51,7 +51,8 @@ class Simulator:
 				if not machine.is_empty():
 					continue_simulation = True
 		print "FINISHED: total time elapsed- ", self.task_handler.current_time
-		self.plot_graphs()
+		self.print_counts()	
+		#self.plot_graphs()
 
 	def test_run(self):
 		time_count = 0

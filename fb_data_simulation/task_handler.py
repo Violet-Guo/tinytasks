@@ -30,10 +30,13 @@ class TaskHandler:
             return 
         else:
             new_task = self.unassigned_tasks.get()
-            new_time = self.current_time + new_task.time_left()
-            if new_time not in self.times_set:
-                self.times_set.add(new_time)
-                heappush(self.task_heap, new_time)
+            accum_time = 0
+            for task_time in new_task.times:
+                accum_time += task_time
+                new_time = self.current_time + accum_time
+                if new_time not in self.times_set:
+                    self.times_set.add(new_time)
+                    heappush(self.task_heap, new_time)
             logging.debug("Times set: " + str(self.times_set))
             logging.debug("Task heap: " + str(self.task_heap))
             return new_task
