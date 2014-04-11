@@ -2,6 +2,7 @@ import unittest
 from task import *
 from data_simulation import *
 from task_handler import *
+from parser import *
 
 class TestingSimulation(unittest.TestCase):
     
@@ -65,7 +66,8 @@ class TestingSimulation(unittest.TestCase):
 
     def test_map_tasks(self):
         data_file = open("data/test_map.data")
-        tasks = parse_tasks(data_file, 10, 10)
+        parser = Parser(10, 10)
+        tasks = parser.parse_tasks(data_file)
         simulator = Simulator(1, 1, 10, 10, tasks)
         result = simulator.test_run()
         expected_result = [{'disk': {0:8, 1:16}, 'cpu':{0:16, 1:8}, 'network':{0:24, 1:0}}]
@@ -73,7 +75,8 @@ class TestingSimulation(unittest.TestCase):
 
     def test_map_multiple_slots(self):
         data_file = open("data/test_map.data")
-        tasks = parse_tasks(data_file, 10, 10)
+        parser = Parser(10, 10)
+        tasks = parser.parse_tasks(data_file) 
         simulator = Simulator(1, 2, 10, 10, tasks)
         result = simulator.test_run()
         expected_result = [{'disk': {0:4, 1:0, 2:8}, 'cpu':{0:8, 1:0, 2:4}, 'network':{0:12, 1:0, 2:0}}]
@@ -81,7 +84,8 @@ class TestingSimulation(unittest.TestCase):
 
     def test_map_multiple_machines(self):
         data_file = open("data/test_map.data")
-        tasks = parse_tasks(data_file, 10, 10)
+        parser = Parser(10, 10)
+        tasks = parser.parse_tasks(data_file)
         simulator = Simulator(2, 1, 10, 10, tasks)
         result = simulator.test_run()
         expected_result = [{'disk': {0:4, 1:8}, 'cpu':{0:8, 1:4}, 'network':{0:12, 1:0}}]
@@ -90,7 +94,8 @@ class TestingSimulation(unittest.TestCase):
 
     def test_taskhandler(self):
         data_file = open("data/test_map.data")
-        tasks = parse_tasks(data_file, 10, 10)
+        parser = Parser(10, 10)
+        tasks = parser.parse_tasks(data_file)
         task_handler = TaskHandler(tasks)
         comp_set = set()
         comp_set.add(1)
@@ -115,7 +120,8 @@ class TestingSimulation(unittest.TestCase):
     
     def test_taskhandler_two(self):
         data_file = open("data/variable_test_map.data")
-        tasks = parse_tasks(data_file, 10, 10)
+        parser = Parser(10, 10)
+        tasks = parser.parse_tasks(data_file)
         task_handler = TaskHandler(tasks)
         comp_set = set()
         comp_set.add(1)

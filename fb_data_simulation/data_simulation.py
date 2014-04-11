@@ -7,6 +7,7 @@ from Queue import Queue
 from task import *
 from machine import *
 from task_handler import *
+from parser import *
 
 RESULT_FILENAME = "results/test_two_machines/machine"
 
@@ -101,46 +102,17 @@ def reduce_sums(probabilities):
 		result.append(curr_sum)
 		count += 1
 	return result
-
-def parse_tasks(data_file, disk_throughput, network_bandwidth):
-	tasks = Queue()
-	for line in data_file:
-		split_line = line.split("\t")
-		job_type = split_line[2]
-		if job_type == 'MapAttempt' or job_type == 'ReduceAttempt':
-			job_name = split_line[1]
-			cpu_time = int(split_line[11])
-			if job_type == 'MapAttempt':
-				input_size = split_line[12] 
-				output_size = split_line[15] 
-				read_speed = disk_throughput
-				write_speed = disk_throughput
-				if cpu_time != '' and input_size != '' and output_size != '':
-					new_task = MapTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
-						math.ceil(read_time_milliseconds(output_size, write_speed)))
-					logging.debug("Adding " + str(new_task))
-					tasks.put(new_task)
-			else:
-				input_size = split_line[10] 
-				output_size = split_line[13]
-				read_speed = network_bandwidth
-				write_speed = disk_throughput 
-				if cpu_time != '' and input_size != '' and output_size != '':
-					new_task = ReduceTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
-						math.ceil(read_time_milliseconds(output_size, write_speed)))
-					logging.debug("Adding " + str(new_task))
-					tasks.put(new_task)
-	return tasks
-
-def read_time_milliseconds(size, rate=10.0):
-	''' 
-	Given a size in bytes, converts it to the number of microseconds it'd take 
-	to process that size of data. Default rate is 10 MB/ sec.
-	'''
-	size = int(size)
-	result = size / (10.0**6)
-	result = (result / rate) * 1000
-	return result
+	
+def simulate(args):
+	level_type = logging.INFO
+	if args.debug:
+		level_type = logging.DEBUG
+	logging.basicConfig(format='%(levelname)s-%(message)s', level=level_type)
+	data_file = open(args.file)
+	parser = Parser(args.d, args.n)
+	tasks = parser.parse_tasks(data_file)
+	simulator = Simulator(args.m, args.s, args.d, args.n, tasks)
+	simulator.run()
 
 if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
@@ -151,11 +123,4 @@ if __name__ == "__main__":
 	parser.add_argument("--n", default=10, type=int, help="network bandwidth in MB/s")
 	parser.add_argument("file", type=str, help="data file path")
 	args = parser.parse_args()
-	level_type = logging.INFO
-	if args.debug:
-		level_type = logging.DEBUG
-	logging.basicConfig(format='%(levelname)s-%(message)s', level=level_type)
-	data_file = open(args.file)
-	tasks = parse_tasks(data_file, args.d, args.n)
-	simulator = Simulator(args.m, args.s, args.d, args.n, tasks)
-	simulator.run()
+	simulate(args)
