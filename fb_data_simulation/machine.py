@@ -2,6 +2,8 @@ from task import *
 from Queue import Queue
 from data_simulation import *
 from task_handler import *
+from event_handler import *
+from event import *
 
 class Machine:
 	'''
@@ -9,12 +11,17 @@ class Machine:
 	Upon each run, the machine will check if any tasks are complete and update
 	accordingly.
 	'''
-	def __init__(self, machine_num, num_slots, task_handler):
+	def __init__(self, machine_num, num_slots, event_handler, all_tasks):
 		self.machine_num = machine_num
 		self.num_slots = num_slots
-		self.current_tasks = Queue()
-		self.task_handler = task_handler
-		self.counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
+		self.counts = instantiate_counts()
+		self.event_handler = event_handler
+		self.all_tasks = all_tasks
+		self.curr_counts = {NETWORK_STAGE:0, CPU_STAGE:0, DISK_STAGE:0}
+		self.time = 0
+
+	def instantiate_counts(self):
+		new_counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
 		for stage in self.counts:
 			new_dict = {}
 			count = 0
@@ -22,24 +29,14 @@ class Machine:
 				new_dict[count] = 0
 				count += 1
 			self.counts[stage] = new_dict
+		return new_counts
 
-	def run(self, run_time):
-		logging.debug("Machine " + str(self.machine_num) + " running")
-		stage_counts = {DISK_STAGE: 0, CPU_STAGE: 0, NETWORK_STAGE: 0}
-		new_tasks = Queue()
-		task_count = self.current_tasks.qsize()
-		while task_count > 0:
-			task = self.current_tasks.get()
-			stage_counts[task.get_curr_stage()] += 1
-			task.decrement_len(run_time)
-			if not task.is_complete():
-				new_tasks.put(task)
-			task_count -= 1
-		while new_tasks.qsize() < self.num_slots and not self.task_handler.empty_tasks():
-			task = self.task_handler.get_new_task()
-			new_tasks.put(task)
-		self.current_tasks = new_tasks
-		self.update_counts(stage_counts, run_time)
+	def start(self):
+		count = 0
+		while count < self.num_slots:
+			new_event = StartEvent(self, 0)
+			self.event_handler.add_event(new_event)
+			count += 1
 
 	def update_counts(self, stage_counts, num_seconds):
 		logging.debug("BEFORE stage_counts: " + str(stage_counts))
@@ -48,11 +45,35 @@ class Machine:
 			self.counts[stage][count] += num_seconds	
 		logging.debug("AFTER stage_counts: " + str(stage)+ ", counts: " + str(self.counts))
 
-	def add_task(self, task):
-		self.current_tasks.put(task)
+	def task_transition(self, new_time, task):
+		time_change = new_time - self.time
+		old_stage = task.get_curr_stage()
+		self.update_counts(self.curr_counts, time_change)
+		task.decrement_time(time_change)
+		new_stage = task.get_curr_stage()
+		if new_stage == old_stage:
+			raise Exception("Machine.py: task_transition should lead to a new stage")
+		self.curr_counts[old_stage] -= 1
+		self.curr_counts[new_stage] += 1
+		self.time = new_time
 
-	def is_full(self):
-		return self.current_tasks.qsize() == self.num_slots
+	def add_task(self, new_time):
+		if self.all_tasks.empty():
+			return
+		new_task = self.all_tasks.get()
+		current_stage = new_task.get_curr_stage()
+		time_change = new_time - self.time
+		self.update_counts(curr_counts, time_change)
+		self.time = new_time
+		self.curr_counts[current_stage] += 1
+		return new_task
 
-	def is_empty(self):
-		return self.current_tasks.qsize() == 0 
+	def remove_task(self, task, new_time):
+		current_stage = task.get_curr_stage()
+		time_change = new_time - self.time
+		self.update_counts(curr_counts, time_change)
+		self.time = new_time
+		self.curr_counts[current_stage] -= 1
+
+
+

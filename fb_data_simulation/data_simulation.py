@@ -8,6 +8,7 @@ from task import *
 from machine import *
 from task_handler import *
 from parser import *
+from event_handler import *
 
 RESULT_FILENAME = "results/test_two_machines/machine"
 
@@ -19,55 +20,25 @@ class Simulator:
 		self.disk_throughput = disk_throughput
 		self.network_bandwidth = network_bandwidth
 		self.tasks = tasks
-		self.task_handler = TaskHandler(tasks)
+		self.event_handler = EventHandler()
 		self.machines = list()
 		count = 0
 		while count < self.num_machines:
-			self.machines.append(Machine(count, num_slots, self.task_handler))
+			self.machines.append(Machine(count, num_slots, self.event_handler, self.tasks))
 			count += 1
-		self.assign_tasks_to_machines()
 
 	def assign_tasks_to_machines(self):
-		continue_assignment = True
-		while continue_assignment:
-			continue_assignment = False
-			for machine in self.machines:
-				task = self.task_handler.get_new_task()
-				if task == None:
-					return
-				if not machine.is_full():
-					machine.add_task(task)
-				if not machine.is_full():
-					continue_assignment = True
+		for machine in self.machines:
+			machine.start()
 
 	def run(self):
-		time_count = 0
-		continue_simulation = True
-		while continue_simulation: #Need each machine to be done AND tasks list to be empty
-			continue_simulation = False
-			run_time = self.task_handler.get_shortest_task_time()
-			for machine in self.machines:
-				if not machine.is_empty():
-					machine.run(run_time)
-				if not machine.is_empty():
-					continue_simulation = True
-		print "FINISHED: total time elapsed- ", self.task_handler.current_time
+		self.event_handler.run()
+		print "FINISHED: total time elapsed- ", self.event_handler.curr_time
 		self.print_counts()	
 		#self.plot_graphs()
 
 	def test_run(self):
-		time_count = 0
-		continue_simulation = True
-		while continue_simulation: #Need each machine to be done AND tasks list to be empty
-			continue_simulation = False
-			for machine in self.machines:
-				if not machine.is_empty():
-					machine.run(1)
-				if not machine.is_empty():
-					continue_simulation = True
-			if not continue_simulation:
-				break
-			time_count += 1
+		self.run()
 		result = []
 		for machine in self.machines:
 			result.append(machine.counts)

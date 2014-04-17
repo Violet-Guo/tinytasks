@@ -28,8 +28,8 @@ class Parser:
                     read_speed = self.disk_throughput
                     write_speed = self.disk_throughput
                     if cpu_time != '' and input_size != '' and output_size != '':
-                        new_task = MapTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
-                            math.ceil(read_time_milliseconds(output_size, write_speed)))
+                        new_task = MapTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
+                            math.ceil(read_time_microseconds(output_size, write_speed)))
                         logging.debug("Adding " + str(new_task))
                         tasks.put(new_task)
                 else:
@@ -38,18 +38,18 @@ class Parser:
                     read_speed = self.network_bandwidth
                     write_speed = self.disk_throughput 
                     if cpu_time != '' and input_size != '' and output_size != '':
-                        new_task = ReduceTask(job_name, math.ceil(read_time_milliseconds(input_size, read_speed)), cpu_time,\
-                            math.ceil(read_time_milliseconds(output_size, write_speed)))
+                        new_task = ReduceTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
+                            math.ceil(read_time_microseconds(output_size, write_speed)))
                         logging.debug("Adding " + str(new_task))
                         tasks.put(new_task)
         return tasks
 
-def read_time_milliseconds(size, rate=10.0):
+def read_time_microseconds(size, rate=10.0):
     ''' 
     Given a size in bytes, converts it to the number of microseconds it'd take 
     to process that size of data. Default rate is 10 MB/ sec.
     '''
     size = int(size)
     result = size / (10.0**6)
-    result = (result / rate) * 1000
+    result = (result / rate) * 1000000
     return result
