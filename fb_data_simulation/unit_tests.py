@@ -43,27 +43,19 @@ class TestingSimulation(unittest.TestCase):
         self.assertTrue(reduce_task.is_complete())
 
     def test_one_machine(self):
-        machine_queue = Queue()
-        machine_queue.put(MapTask("test map task", 1, 1, 1))
-        machine_queue.put(ReduceTask("test reduce task", 1, 1, 1))
-        machine = Machine(0, 2, TaskHandler(machine_queue))
-        machine.run(1)
-        machine.run(1)
-        one_run = {DISK_STAGE: {0: 1, 1: 1, 2:0}, CPU_STAGE: {0: 2, 1: 0, 2:0}, NETWORK_STAGE: {0: 1, 1: 1, 2:0}} 
-        self.assertEqual(machine.counts, one_run)
-        self.assertTrue(machine.is_full())
-        self.assertFalse(machine.is_empty())
-        two_run = {DISK_STAGE: {0: 2, 1: 1, 2:0}, CPU_STAGE: {0: 2, 1: 0, 2:1}, NETWORK_STAGE: {0: 2, 1: 1, 2:0}} 
-        machine.run(1)
-        self.assertEqual(machine.counts, two_run)
-        self.assertTrue(machine.is_full())
-        self.assertFalse(machine.is_empty())
+        event_handler = EventHandler()
+        task_queue = Queue()
+        task_queue.put(MapTask("test map task", 1, 1, 1))
+        task_queue.put(ReduceTask("test reduce task", 1, 1, 1))
+        machine = Machine(0, 2, event_handler, task_queue)
+        machine.start()
+        event_handler.run()
         three_run = {DISK_STAGE: {0: 2, 1: 1, 2:1}, CPU_STAGE: {0: 3, 1: 0, 2:1}, NETWORK_STAGE: {0: 3, 1: 1, 2:0}} 
         machine.run(1)
         self.assertEqual(machine.counts, three_run)
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
-
+'''
     def test_map_tasks(self):
         data_file = open("data/test_map.data")
         parser = Parser(10, 10)
@@ -154,7 +146,7 @@ class TestingSimulation(unittest.TestCase):
         task_handler = TaskHandler(Queue())
         new_task = task_handler.get_new_task()
         self.assertEqual(new_task, None)
-
+'''
 
 if __name__ == '__main__':
     #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)

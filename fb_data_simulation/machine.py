@@ -14,7 +14,7 @@ class Machine:
 	def __init__(self, machine_num, num_slots, event_handler, all_tasks):
 		self.machine_num = machine_num
 		self.num_slots = num_slots
-		self.counts = instantiate_counts()
+		self.counts = self.instantiate_counts()
 		self.event_handler = event_handler
 		self.all_tasks = all_tasks
 		self.curr_counts = {NETWORK_STAGE:0, CPU_STAGE:0, DISK_STAGE:0}
@@ -22,20 +22,20 @@ class Machine:
 
 	def instantiate_counts(self):
 		new_counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
-		for stage in self.counts:
+		for stage in new_counts:
 			new_dict = {}
 			count = 0
-			while count <= num_slots:
+			while count <= self.num_slots:
 				new_dict[count] = 0
 				count += 1
-			self.counts[stage] = new_dict
+			new_counts[stage] = new_dict
 		return new_counts
 
 	def start(self):
 		count = 0
 		while count < self.num_slots:
 			new_event = StartEvent(self, 0)
-			self.event_handler.add_event(new_event)
+			self.event_handler.add_event(new_event, 0)
 			count += 1
 
 	def update_counts(self, stage_counts, num_seconds):
@@ -49,7 +49,7 @@ class Machine:
 		time_change = new_time - self.time
 		old_stage = task.get_curr_stage()
 		self.update_counts(self.curr_counts, time_change)
-		task.decrement_time(time_change)
+		task.decrement_len(time_change)
 		new_stage = task.get_curr_stage()
 		if new_stage == old_stage:
 			raise Exception("Machine.py: task_transition should lead to a new stage")
@@ -63,7 +63,7 @@ class Machine:
 		new_task = self.all_tasks.get()
 		current_stage = new_task.get_curr_stage()
 		time_change = new_time - self.time
-		self.update_counts(curr_counts, time_change)
+		self.update_counts(self.curr_counts, time_change)
 		self.time = new_time
 		self.curr_counts[current_stage] += 1
 		return new_task
@@ -71,9 +71,17 @@ class Machine:
 	def remove_task(self, task, new_time):
 		current_stage = task.get_curr_stage()
 		time_change = new_time - self.time
-		self.update_counts(curr_counts, time_change)
+		self.update_counts(self.curr_counts, time_change)
 		self.time = new_time
 		self.curr_counts[current_stage] -= 1
+
+	def is_empty(self):
+		num_jobs = sum(d.itervalues())
+		return num_jobs == 0
+
+	def is_full(self):
+		num_jobs = sum(d.itervalues())
+		return num_jobs == self.num_slots
 
 
 

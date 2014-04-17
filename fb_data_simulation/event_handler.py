@@ -1,9 +1,9 @@
 from event import *
-from Queue import Queue
+from Queue import *
 
 class EventHandler:
 	def __init__(self):
-		self.event_queue = Queue.PriorityQueue()
+		self.event_queue = PriorityQueue()
 		self.curr_time = 0
 
 	def run(self):
@@ -13,8 +13,9 @@ class EventHandler:
 			event = event_info[1]
 			self.curr_time = new_time
 			new_event = event.run()
-			if new_event != null:
+			if new_event != None:
 				self.event_queue.put(new_event)
 
-	def add_event(self, event):
+	def add_event(self, event, time):
+		new_event = (time, event)
 		self.event_queue.put(new_event)
