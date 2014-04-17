@@ -1,5 +1,6 @@
 from event import *
 from Queue import *
+from data_simulation import *
 
 class EventHandler:
 	def __init__(self):
@@ -11,6 +12,7 @@ class EventHandler:
 			event_info = self.event_queue.get()
 			new_time = event_info[0]
 			event = event_info[1]
+			logging.info("Event retrieved: " + str(event))
 			self.curr_time = new_time
 			new_event = event.run()
 			if new_event != None:

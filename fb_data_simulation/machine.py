@@ -48,9 +48,11 @@ class Machine:
 	def task_transition(self, new_time, task):
 		time_change = new_time - self.time
 		old_stage = task.get_curr_stage()
+		logging.info("OLD Stage: " + old_stage)
 		self.update_counts(self.curr_counts, time_change)
-		task.decrement_len(time_change)
+		task.transition_stage()
 		new_stage = task.get_curr_stage()
+		logging.info("NEW Stage: " + new_stage)
 		if new_stage == old_stage:
 			raise Exception("Machine.py: task_transition should lead to a new stage")
 		self.curr_counts[old_stage] -= 1

@@ -21,6 +21,7 @@ class Task:
 		self.stages = {INPUT_STAGE: input_stage, COMPUTING_STAGE: CPU_STAGE, OUTPUT_STAGE: output_stage}
 		self.times = [input_time, cpu_time, output_time]
 		self.curr_stage = INPUT_STAGE
+		self.curr_time = None
 
 	def get_curr_stage(self):
 		return self.stages[self.curr_stage]
@@ -41,14 +42,12 @@ class Task:
 		if self.times[self.curr_stage] == 0:
 			self.curr_stage += 1
 
-	def decrement_len(self, length):
-		if self.times[self.curr_stage] < length:
-			raise Exception("Trying to decrement more time than what's left")
+	def transition_stage(self):
+		length = self.times[self.curr_stage]
 		self.times[self.curr_stage] -= length
-		if self.times[self.curr_stage] == 0:
-			self.curr_stage += 1
-
-
+		self.curr_stage += 1
+		if self.curr_stage > 2:
+			raise Exception("Trying to transition to an invalid state")
 
 
 class MapTask(Task):

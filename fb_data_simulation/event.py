@@ -1,5 +1,6 @@
 from machine import *
 from task import *
+from data_simulation import *
 
 class Event:
     def __init__(self, machine, time):
@@ -19,6 +20,12 @@ class StartEvent(Event):
             new_event = TransitionEvent(self.machine, new_time, new_task)
             return (new_time, new_event)
 
+    def __str__(self):
+        result = "StartEvent with a time of: " + str(self.time) \
+        + " for machine " + str(self.machine.machine_num)
+        return result
+
+
 class TransitionEvent(Event):
     def __init__(self, machine, time, task):
         Event.__init__(self, machine, time)
@@ -33,6 +40,10 @@ class TransitionEvent(Event):
             new_event = EndEvent(self.machine, new_time, self.task)
         return (new_time, new_event)
 
+    def __str__(self):
+        result = "TransitionEvent with a time of: " + str(self.time) \
+        + " for machine " + str(self.machine.machine_num)
+        return result
 
 class EndEvent(Event):
     def __init__(self, machine, time, task):
@@ -42,3 +53,8 @@ class EndEvent(Event):
     def run(self):
         self.machine.remove_task(self.task, self.time)
         return (self.time, StartEvent(self.machine, self.time))
+
+    def __str__(self):
+        result = "EndEvent with a time of: " + str(self.time) \
+        + " for machine " + str(self.machine.machine_num)
+        return result

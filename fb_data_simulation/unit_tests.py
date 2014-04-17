@@ -51,7 +51,6 @@ class TestingSimulation(unittest.TestCase):
         machine.start()
         event_handler.run()
         three_run = {DISK_STAGE: {0: 2, 1: 1, 2:1}, CPU_STAGE: {0: 3, 1: 0, 2:1}, NETWORK_STAGE: {0: 3, 1: 1, 2:0}} 
-        machine.run(1)
         self.assertEqual(machine.counts, three_run)
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
@@ -149,6 +148,6 @@ class TestingSimulation(unittest.TestCase):
 '''
 
 if __name__ == '__main__':
-    #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.INFO)
     unittest.main()
 
