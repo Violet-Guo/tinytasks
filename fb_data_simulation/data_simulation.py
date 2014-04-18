@@ -32,9 +32,10 @@ class Simulator:
 			machine.start()
 
 	def run(self):
+		self.assign_tasks_to_machines()
 		self.event_handler.run()
 		print "FINISHED: total time elapsed- ", self.event_handler.curr_time
-		self.print_counts()	
+		#self.print_counts()	
 		#self.plot_graphs()
 
 	def test_run(self):

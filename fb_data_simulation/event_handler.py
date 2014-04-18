@@ -12,11 +12,14 @@ class EventHandler:
 			event_info = self.event_queue.get()
 			new_time = event_info[0]
 			event = event_info[1]
-			logging.info("Event retrieved: " + str(event))
+			logging.debug("Event retrieved: " + str(event))
+			if not isinstance(event, StartEvent):
+				logging.debug("TASK: " + str(event.task))
 			self.curr_time = new_time
 			new_event = event.run()
 			if new_event != None:
 				self.event_queue.put(new_event)
+			logging.debug("\n")
 
 	def add_event(self, event, time):
 		new_event = (time, event)

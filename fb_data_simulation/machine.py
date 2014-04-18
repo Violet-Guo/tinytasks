@@ -39,11 +39,11 @@ class Machine:
 			count += 1
 
 	def update_counts(self, stage_counts, num_seconds):
-		logging.debug("BEFORE stage_counts: " + str(stage_counts))
+		logging.debug("COUNTS: " + str(stage_counts))
 		for stage in stage_counts.keys():
 			count = stage_counts[stage]
 			self.counts[stage][count] += num_seconds	
-		logging.debug("AFTER stage_counts: " + str(stage)+ ", counts: " + str(self.counts))
+		logging.debug("self.counts: " + str(self.counts))
 
 	def task_transition(self, new_time, task):
 		time_change = new_time - self.time
@@ -78,11 +78,11 @@ class Machine:
 		self.curr_counts[current_stage] -= 1
 
 	def is_empty(self):
-		num_jobs = sum(d.itervalues())
+		num_jobs = sum(self.curr_counts.itervalues())
 		return num_jobs == 0
 
 	def is_full(self):
-		num_jobs = sum(d.itervalues())
+		num_jobs = sum(self.curr_counts.itervalues())
 		return num_jobs == self.num_slots
 
 
