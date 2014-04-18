@@ -10,7 +10,7 @@ from task_handler import *
 from parser import *
 from event_handler import *
 
-RESULT_FILENAME = "results/test_two_machines/machine"
+RESULT_FILENAME = "results/test_100_tasks/machine"
 
 class Simulator:
 
@@ -35,8 +35,8 @@ class Simulator:
 		self.assign_tasks_to_machines()
 		self.event_handler.run()
 		print "FINISHED: total time elapsed- ", self.event_handler.curr_time
-		#self.print_counts()	
-		#self.plot_graphs()
+		self.print_counts()	
+		self.plot_graphs()
 
 	def test_run(self):
 		self.run()

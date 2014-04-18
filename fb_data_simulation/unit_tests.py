@@ -63,6 +63,8 @@ class TestingSimulation(unittest.TestCase):
         result = simulator.test_run()
         expected_result = [{'disk': {0:8, 1:16000}, 'cpu':{0:16000, 1:8}, 'network':{0:16008, 1:0}}]
         self.assertEqual(expected_result, result)
+        for machine in simulator.machines:
+            self.assertTrue(machine.is_empty())
 
     def test_map_multiple_slots(self):
         data_file = open("data/test_map.data")
@@ -72,6 +74,9 @@ class TestingSimulation(unittest.TestCase):
         result = simulator.test_run()
         expected_result = [{'disk': {0:4, 1:0, 2:8000}, 'cpu':{0:8000, 1:0, 2:4}, 'network':{0:8004, 1:0, 2:0}}]
         self.assertEqual(expected_result, result)
+        for machine in simulator.machines:
+            self.assertTrue(machine.is_empty())
+
 
     def test_map_multiple_machines(self):
         data_file = open("data/test_map.data")
@@ -82,6 +87,8 @@ class TestingSimulation(unittest.TestCase):
         expected_result = [{'disk': {0:4, 1:8000}, 'cpu':{0:8000, 1:4}, 'network':{0:8004, 1:0}}]
         expected_result.append({'disk': {0:4, 1:8000}, 'cpu':{0:8000, 1:4}, 'network':{0:8004, 1:0}})
         self.assertEqual(expected_result, result)
+        for machine in simulator.machines:
+            self.assertTrue(machine.is_empty())        
 
 if __name__ == '__main__':
     #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
