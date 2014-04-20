@@ -60,7 +60,7 @@ class MapTask(Task):
 
 	def __str__(self):
 		result = "MapTask with job name: " + self.job + ", disk (input) time of " + str(self.input_time) + \
-		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total time: " + \
+		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total: " + \
 		str(self.time_left()) + ")"
 		return result
 
@@ -76,7 +76,7 @@ class ReduceTask(Task):
 
 	def __str__(self):
 		result = "ReduceTask with job name: " + self.job + ", network (input) time of " + str(self.input_time) + \
-		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total time: " + \
+		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total: " + \
 		str(self.time_left()) + ")"
 		return result
 

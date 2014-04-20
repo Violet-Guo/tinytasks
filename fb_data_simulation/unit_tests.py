@@ -5,7 +5,7 @@ from task_handler import *
 from parser import *
 
 class TestingSimulation(unittest.TestCase):
-    '''
+
     def test_task(self):
         map_task = MapTask("test map task", 1, 2, 3)
         self.assertFalse(map_task.is_complete())
@@ -110,22 +110,28 @@ class TestingSimulation(unittest.TestCase):
         self.assertEqual(expected_result[0], result[0])
         expected_result.append({'disk': {0:340410000, 1:71436783}, 'cpu':{0:71436783, 1:340410000}, 'network':{0:411846783, 1:0}})
         self.assertEqual(expected_result[1], result[1])
-    '''
-
-    def test_last_10_tasks(self):
-        data_file = open("data/last_10_tasks.data")
+    
+    def test_last6_tasks(self):
+        data_file = open("data/last_12_tasks.data")
         parser = Parser(10, 10)
         tasks = parser.parse_tasks(data_file)
         simulator = Simulator(1, 1, tasks)
         result = simulator.test_run()
-'''  
-    def last_10_tasks_two_machines(self):
-        data_file = open("data/last_10_tasks.data")
+        expected_result = [{'network': {0:398480134, 1: 75695}, 'cpu':{0:33835829, 1:364720000}, 'disk':{0:364795695, 1:33760134}}]
+        self.assertEqual(expected_result, result)
+
+
+    def test_last6_two_machines(self):
+        data_file = open("data/last_6_tasks.data")
         parser = Parser(10, 10)
         tasks = parser.parse_tasks(data_file)
         simulator = Simulator(2, 1, tasks)
         result = simulator.test_run()
-'''
+        expected_result = [{'network': {0:100549912, 1: 25072}, 'disk':{0:91775072, 1: 8799912}, 'cpu':{0:8824984, 1: 91750000}}]
+        expected_result.append({'network': {0:78617406, 1: 25704}, 'cpu':{0:6263110, 1:72380000}, 'disk':{0:72405704, 1: 6237406}})
+        self.assertEqual(expected_result[0], result[0])
+        self.assertEqual(expected_result[1], result[1])
+
 if __name__ == '__main__':
     logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
     unittest.main()
