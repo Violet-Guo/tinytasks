@@ -15,11 +15,11 @@ class Task:
 	'''
 	def __init__(self, job, input_time, cpu_time, output_time, input_stage, output_stage):
 		self.job = job
-		self.input_time = input_time
+		self.input_time = int(input_time)
 		self.cpu_time = cpu_time
-		self.output_time = output_time
+		self.output_time = int(output_time)
 		self.stages = {INPUT_STAGE: input_stage, COMPUTING_STAGE: CPU_STAGE, OUTPUT_STAGE: output_stage}
-		self.times = [input_time, cpu_time, output_time]
+		self.times = [self.input_time, self.cpu_time, self.output_time]
 		self.curr_stage = INPUT_STAGE
 		self.curr_time = None
 
@@ -59,8 +59,9 @@ class MapTask(Task):
 		Task.__init__(self, job, input_time, cpu_time, output_time, DISK_STAGE, DISK_STAGE)
 
 	def __str__(self):
-		result = "MapTask with job name: " + self.job + ", input time of " + str(self.input_time) + \
-		", cpu time of " + str(self.cpu_time) + ", and output time of " + str(self.output_time)
+		result = "MapTask with job name: " + self.job + ", disk (input) time of " + str(self.input_time) + \
+		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total time: " + \
+		str(self.time_left()) + ")"
 		return result
 
 
@@ -74,8 +75,9 @@ class ReduceTask(Task):
 		Task.__init__(self, job, input_time, cpu_time, output_time, NETWORK_STAGE, DISK_STAGE)
 
 	def __str__(self):
-		result = "ReduceTask with job name: " + self.job + ", input time of " + str(self.input_time) + \
-		", cpu time of " + str(self.cpu_time) + ", and output time of " + str(self.output_time)
+		result = "ReduceTask with job name: " + self.job + ", network (input) time of " + str(self.input_time) + \
+		", cpu time of " + str(self.cpu_time) + ", and disk (output) time of " + str(self.output_time) + " (total time: " + \
+		str(self.time_left()) + ")"
 		return result
 
 

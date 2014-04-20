@@ -14,11 +14,9 @@ RESULT_FILENAME = "results/test_100_tasks/machine"
 
 class Simulator:
 
-	def __init__(self, num_machines, num_slots, disk_throughput, network_bandwidth, tasks):
+	def __init__(self, num_machines, num_slots, tasks):
 		self.num_machines = num_machines
 		self.num_slots = num_slots
-		self.disk_throughput = disk_throughput
-		self.network_bandwidth = network_bandwidth
 		self.tasks = tasks
 		self.event_handler = EventHandler()
 		self.machines = list()
@@ -34,7 +32,7 @@ class Simulator:
 	def run(self):
 		self.assign_tasks_to_machines()
 		self.event_handler.run()
-		print "FINISHED: total time elapsed- ", self.event_handler.curr_time
+		print "FINISHED: total time elapsed (in microseconds)- ", self.event_handler.curr_time
 		self.print_counts()	
 		self.plot_graphs()
 

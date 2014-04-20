@@ -21,7 +21,7 @@ class Parser:
             job_type = split_line[2]
             if job_type == 'MapAttempt' or job_type == 'ReduceAttempt':
                 job_name = split_line[1]
-                cpu_time = int(split_line[11])
+                cpu_time = int(split_line[11]) * 1000 #Converting to microseconds
                 if job_type == 'MapAttempt':
                     input_size = split_line[12] 
                     output_size = split_line[15] 

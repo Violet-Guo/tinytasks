@@ -38,6 +38,7 @@ class TransitionEvent(Event):
             new_event = TransitionEvent(self.machine, new_time, self.task)
         else:
             new_event = EndEvent(self.machine, new_time, self.task)
+        logging.debug("ADDING TASK, at time " + str(new_time) + " " + "with task " + str(new_event))
         return (new_time, new_event)
 
     def __str__(self):
