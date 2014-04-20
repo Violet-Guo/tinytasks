@@ -16,32 +16,33 @@ class Parser:
 
     def parse_tasks(self, data_file):
         tasks = Queue()
-        for line in data_file:
-            split_line = line.split("\t")
-            job_type = split_line[2]
-            if job_type == 'MapAttempt' or job_type == 'ReduceAttempt':
-                job_name = split_line[1]
-                cpu_time = int(split_line[11]) * 1000 #Converting to microseconds
-                if job_type == 'MapAttempt':
-                    input_size = split_line[12] 
-                    output_size = split_line[15] 
-                    read_speed = self.disk_throughput
-                    write_speed = self.disk_throughput
-                    if cpu_time != '' and input_size != '' and output_size != '':
-                        new_task = MapTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
-                            math.ceil(read_time_microseconds(output_size, write_speed)))
-                        logging.debug("Adding " + str(new_task))
-                        tasks.put(new_task)
-                else:
-                    input_size = split_line[10] 
-                    output_size = split_line[13]
-                    read_speed = self.network_bandwidth
-                    write_speed = self.disk_throughput 
-                    if cpu_time != '' and input_size != '' and output_size != '':
-                        new_task = ReduceTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
-                            math.ceil(read_time_microseconds(output_size, write_speed)))
-                        logging.debug("Adding " + str(new_task))
-                        tasks.put(new_task)
+        with open(data_file, 'r') as f:
+            for line in f:
+                split_line = line.split("\t")
+                job_type = split_line[2]
+                if job_type == 'MapAttempt' or job_type == 'ReduceAttempt':
+                    job_name = split_line[1]
+                    cpu_time = int(split_line[11]) * 1000 #Converting to microseconds
+                    if job_type == 'MapAttempt':
+                        input_size = split_line[12] 
+                        output_size = split_line[15] 
+                        read_speed = self.disk_throughput
+                        write_speed = self.disk_throughput
+                        if cpu_time != '' and input_size != '' and output_size != '':
+                            new_task = MapTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
+                                math.ceil(read_time_microseconds(output_size, write_speed)))
+                            logging.debug("Adding " + str(new_task))
+                            tasks.put(new_task)
+                    else:
+                        input_size = split_line[10] 
+                        output_size = split_line[13]
+                        read_speed = self.network_bandwidth
+                        write_speed = self.disk_throughput 
+                        if cpu_time != '' and input_size != '' and output_size != '':
+                            new_task = ReduceTask(job_name, math.ceil(read_time_microseconds(input_size, read_speed)), cpu_time,\
+                                math.ceil(read_time_microseconds(output_size, write_speed)))
+                            logging.debug("Adding " + str(new_task))
+                            tasks.put(new_task)
         return tasks
 
 def read_time_microseconds(size, rate=10.0):

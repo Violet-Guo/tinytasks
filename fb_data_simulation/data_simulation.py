@@ -10,7 +10,7 @@ from task_handler import *
 from parser import *
 from event_handler import *
 
-RESULT_FILENAME = "results/test_100_tasks/machine"
+RESULT_FILENAME = "results/test_all_data/machine"
 
 class Simulator:
 
@@ -33,11 +33,17 @@ class Simulator:
 		self.assign_tasks_to_machines()
 		self.event_handler.run()
 		print "FINISHED: total time elapsed (in microseconds)- ", self.event_handler.curr_time
-		self.print_counts()	
+		self.save_counts()	
 		self.plot_graphs()
 
+	def run_no_plot(self):
+		self.assign_tasks_to_machines()
+		self.event_handler.run()
+		print "FINISHED: total time elapsed (in microseconds)- ", self.event_handler.curr_time
+		self.save_counts()	
+
 	def test_run(self):
-		self.run()
+		self.run_no_plot()
 		result = []
 		for machine in self.machines:
 			result.append(machine.counts)
@@ -46,6 +52,14 @@ class Simulator:
 	def print_counts(self):
 		for machine in self.machines:
 			print( "Machine " + str(machine.machine_num) + " " + str(machine.counts))
+
+	def save_counts(self):
+		with open("results/test_all_data/counts.txt", 'w') as f:
+			total_time = "FINISHED: total time elapsed (in microseconds)- " + str(self.event_handler.curr_time) + "\n"
+			f.write(total_time)
+			for machine in self.machines:
+				new_machine = "Machine " + str(machine.machine_num) + " " + str(machine.counts) + "\n\n"
+				f.write(new_machine)
 
 	def plot_graphs(self):
 		for machine in self.machines:
@@ -62,6 +76,7 @@ def plot_results(result, machine_num):
 		result[DISK_STAGE].keys(), reduce_sums(map(lambda x: x/output_sum, result[DISK_STAGE].values())))
 	filename = RESULT_FILENAME +  str(machine_num) + ".png"
 	plt.savefig(filename)
+	plt.close()
 
 def reduce_sums(probabilities):
 	count = 0
@@ -78,10 +93,9 @@ def simulate(args):
 	if args.debug:
 		level_type = logging.DEBUG
 	logging.basicConfig(format='%(levelname)s-%(message)s', level=level_type)
-	data_file = open(args.file)
 	parser = Parser(args.d, args.n)
-	tasks = parser.parse_tasks(data_file)
-	simulator = Simulator(args.m, args.s, args.d, args.n, tasks)
+	tasks = parser.parse_tasks(args.file)
+	simulator = Simulator(args.m, args.s, tasks)
 	simulator.run()
 
 if __name__ == "__main__":
