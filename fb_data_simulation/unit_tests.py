@@ -5,7 +5,6 @@ from task_handler import *
 from parser import *
 
 class TestingSimulation(unittest.TestCase):
-
     def test_task(self):
         map_task = MapTask("test map task", 1, 2, 3)
         self.assertFalse(map_task.is_complete())
@@ -54,7 +53,6 @@ class TestingSimulation(unittest.TestCase):
         self.assertEqual(machine.counts, three_run)
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
-
 
     def test_map_tasks(self):
         data_file = "data/test_map.data"
@@ -138,7 +136,21 @@ class TestingSimulation(unittest.TestCase):
         else:
             assertEqual(False, True)
 
+    def test_multiple_slots(self):
+        event_handler = EventHandler()
+        task_queue = Queue()
+        task_queue.put(MapTask("map task 1", 17, 7, 19))
+        task_queue.put(ReduceTask("reduce task 1", 3, 16, 7))
+        task_queue.put(MapTask("map task 2", 11, 14, 10))
+        machine = Machine(0, 2, event_handler, task_queue)
+        machine.start()
+        event_handler.run()
+        three_run = {'disk': {0: 10, 1: 38, 2: 13}, 'network': {0: 58, 1: 3, 2: 0}, 'cpu': {0: 26, 1: 33, 2: 2}}
+        self.assertEqual(machine.counts, three_run)
+        self.assertFalse(machine.is_full())
+        self.assertTrue(machine.is_empty())
+
 if __name__ == '__main__':
-    #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.INFO)
+    #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
     unittest.main()
 
