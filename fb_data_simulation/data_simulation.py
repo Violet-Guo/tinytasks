@@ -10,7 +10,8 @@ from task_handler import *
 from parser import *
 from event_handler import *
 
-RESULT_FILENAME = "results/test_all_data/machine"
+RESULT_FOLDER = "results/test_all_data/"
+RESULT_FILENAME =  RESULT_FOLDER + "machine"
 
 class Simulator:
 
@@ -32,14 +33,17 @@ class Simulator:
 	def run(self):
 		self.assign_tasks_to_machines()
 		self.event_handler.run()
-		print "FINISHED: total time elapsed (in microseconds)- ", self.event_handler.curr_time
+		total_time = self.event_handler.curr_time / 1000.0
+		print "FINISHED: total time elapsed (in milliseconds)- ", total_time
+		self.process_task_averages()
 		self.save_counts()	
 		self.plot_graphs()
 
 	def run_no_plot(self):
 		self.assign_tasks_to_machines()
 		self.event_handler.run()
-		print "FINISHED: total time elapsed (in microseconds)- ", self.event_handler.curr_time
+		total_time = self.event_handler.curr_time / 1000.0
+		print "FINISHED: total time elapsed (in milliseconds)- ", total_time
 		self.save_counts()	
 
 	def test_run(self):
@@ -53,10 +57,28 @@ class Simulator:
 		for machine in self.machines:
 			print( "Machine " + str(machine.machine_num) + " " + str(machine.counts))
 
+	def process_task_averages(self):
+		task_times = self.event_handler.task_times
+		cumm_times = 0
+		count = 0.0
+		for job in task_times:
+			job_times = task_times[job]
+			if START in job_times and END in job_times:
+				diff = job_times[END] - job_times[START]
+				assert diff > 0
+				diff = diff / 1000.0
+				cumm_times += diff
+				count += 1
+		if count > 0:
+			average = cumm_times / count
+			print "Average time of jobs is (in milliseconds): ", str(average)
+			return average
+
 	def save_counts(self):
 		with open("results/test_all_data/counts.txt", 'w') as f:
-			total_time = "FINISHED: total time elapsed (in microseconds)- " + str(self.event_handler.curr_time) + "\n"
-			f.write(total_time)
+			total_time = self.event_handler.curr_time / 1000.0
+			total_time_str =  "FINISHED: total time elapsed (in milliseconds)- " + str(total_time)
+			f.write(total_time_str)
 			for machine in self.machines:
 				new_machine = "Machine " + str(machine.machine_num) + " " + str(machine.counts) + "\n\n"
 				f.write(new_machine)
@@ -65,7 +87,6 @@ class Simulator:
 		for machine in self.machines:
 			logging.debug("Machine counts = " + str(machine.counts))
 			plot_results(machine.counts, machine.machine_num)
-
 
 def plot_results(result, machine_num):
 	input_sum = sum(result[NETWORK_STAGE].values()) + 0.0

@@ -1,11 +1,15 @@
 from event import *
 from Queue import *
+from task import *
 from data_simulation import *
+START = "start"
+END = "end"
 
 class EventHandler:
 	def __init__(self):
 		self.event_queue = PriorityQueue()
 		self.curr_time = 0
+		self.task_times = {}
 
 	def run(self):
 		while not self.event_queue.empty():
@@ -17,9 +21,20 @@ class EventHandler:
 				logging.debug("TASK: " + str(event.task))
 			self.curr_time = new_time
 			new_event = event.run()
+			self.record_task_time(event, new_time)
 			if new_event != None:
 				self.event_queue.put(new_event)
 			logging.debug("\n")
+
+	def record_task_time(self, event, time):
+		task = event.task
+		if isinstance(event, StartEvent) and isinstance(task, MapTask):
+			if task.job not in self.task_times:
+				self.task_times[task.job] = {START: time}
+		if isinstance(event, EndEvent) and isinstance(task, ReduceTask):
+			if task.job in self.task_times:
+				self.task_times[task.job][END] = time
+
 
 	def add_event(self, event, time):
 		new_event = (time, event)

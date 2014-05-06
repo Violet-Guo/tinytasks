@@ -13,6 +13,7 @@ class Event:
 class StartEvent(Event):
     def run(self):
         new_task = self.machine.add_task(self.time)
+        self.task = new_task
         if new_task == None:
             return
         else:
