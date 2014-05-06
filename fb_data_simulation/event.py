@@ -25,7 +25,6 @@ class StartEvent(Event):
         + " for machine " + str(self.machine.machine_num)
         return result
 
-
 class TransitionEvent(Event):
     def __init__(self, machine, time, task):
         Event.__init__(self, machine, time)

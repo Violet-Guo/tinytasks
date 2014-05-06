@@ -71,9 +71,10 @@ def plot_results(result, machine_num):
 	input_sum = sum(result[NETWORK_STAGE].values()) + 0.0
 	cpu_sum = sum(result[CPU_STAGE].values()) + 0.0
 	output_sum = sum(result[DISK_STAGE].values()) + 0.0
-	plt.plot(result[NETWORK_STAGE].keys(), reduce_sums(map(lambda x: x/input_sum, result[NETWORK_STAGE].values())), 
-		result[CPU_STAGE].keys(), reduce_sums(map(lambda x: x/cpu_sum, result[CPU_STAGE].values())),
-		result[DISK_STAGE].keys(), reduce_sums(map(lambda x: x/output_sum, result[DISK_STAGE].values())))
+	p1, = plt.plot(result[NETWORK_STAGE].keys(), reduce_sums(map(lambda x: x/input_sum, result[NETWORK_STAGE].values())))
+	p2, = plt.plot(result[CPU_STAGE].keys(), reduce_sums(map(lambda x: x/cpu_sum, result[CPU_STAGE].values())))
+	p3, = plt.plot(result[DISK_STAGE].keys(), reduce_sums(map(lambda x: x/output_sum, result[DISK_STAGE].values())))
+	plt.legend([p1, p2, p3], ["network", "cpu", "disk_"], loc=4)
 	filename = RESULT_FILENAME +  str(machine_num) + ".png"
 	plt.savefig(filename)
 	plt.close()
@@ -102,6 +103,9 @@ if __name__ == "__main__":
 	parser = argparse.ArgumentParser()
 	parser.add_argument("--debug", action="store_true", help="print debugging statements")
 	parser.add_argument("--s", default=1, type=int, help="number of slots per machine")
+	parser.add_argument("--disk", default=1, type=int, help="number of disk slots per machine")
+	parser.add_argument("--cpu", default=1, type=int, help="number of cpu slots per machine")
+	parser.add_argument("--network", default=1, type=int, help="number of network slots per machine")
 	parser.add_argument("--m", default=1, type=int, help="number of machines")
 	parser.add_argument("--d", default=10, type=int, help="disk throughput in MB/s")
 	parser.add_argument("--n", default=10, type=int, help="network bandwidth in MB/s")
