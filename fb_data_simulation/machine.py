@@ -11,7 +11,8 @@ class Machine:
 	Upon each run, the machine will check if any tasks are complete and update
 	accordingly.
 	'''
-	def __init__(self, machine_num, num_slots, event_handler, all_tasks):
+	def __init__(self, machine_num, num_slots, event_handler, all_tasks, \
+		num_disk_slots, num_cpu_slots, num_network_slots):
 		self.machine_num = machine_num
 		self.num_slots = num_slots
 		self.counts = self.instantiate_counts()
@@ -19,6 +20,12 @@ class Machine:
 		self.all_tasks = all_tasks
 		self.curr_counts = {NETWORK_STAGE:0, CPU_STAGE:0, DISK_STAGE:0}
 		self.time = 0
+		self.num_disk_slots = num_disk_slots
+		self.num_cpu_slots = num_cpu_slots
+		self.num_network_slots = num_network_slots
+		self.disk_queue = Queue()
+		self.cpu_queue = Queue()
+		self.network_queue = Queue()
 
 	def instantiate_counts(self):
 		new_counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}

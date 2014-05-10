@@ -15,7 +15,7 @@ RESULT_FILENAME =  RESULT_FOLDER + "machine"
 
 class Simulator:
 
-	def __init__(self, num_machines, num_slots, tasks):
+	def __init__(self, num_machines, num_slots, tasks, disk_slots, cpu_slots, network_slots):
 		self.num_machines = num_machines
 		self.num_slots = num_slots
 		self.tasks = tasks
@@ -23,7 +23,7 @@ class Simulator:
 		self.machines = list()
 		count = 0
 		while count < self.num_machines:
-			self.machines.append(Machine(count, num_slots, self.event_handler, self.tasks))
+			self.machines.append(Machine(count, num_slots, self.event_handler, self.tasks, disk_slots, cpu_slots, network_slots))
 			count += 1
 
 	def assign_tasks_to_machines(self):
@@ -115,9 +115,9 @@ def simulate(args):
 	if args.debug:
 		level_type = logging.DEBUG
 	logging.basicConfig(format='%(levelname)s-%(message)s', level=level_type)
-	parser = Parser(args.d, args.n)
+	parser = Parser(args.throughput, args.bandwidth)
 	tasks = parser.parse_tasks(args.file)
-	simulator = Simulator(args.m, args.s, tasks)
+	simulator = Simulator(args.m, args.s, tasks, args.disk, args.cpu, args.bandwidth)
 	simulator.run()
 
 if __name__ == "__main__":
@@ -128,8 +128,8 @@ if __name__ == "__main__":
 	parser.add_argument("--cpu", default=1, type=int, help="number of cpu slots per machine")
 	parser.add_argument("--network", default=1, type=int, help="number of network slots per machine")
 	parser.add_argument("--m", default=1, type=int, help="number of machines")
-	parser.add_argument("--d", default=10, type=int, help="disk throughput in MB/s")
-	parser.add_argument("--n", default=10, type=int, help="network bandwidth in MB/s")
+	parser.add_argument("--throughput", default=10, type=int, help="disk throughput in MB/s")
+	parser.add_argument("--bandwidth", default=10, type=int, help="network bandwidth in MB/s")
 	parser.add_argument("file", type=str, help="data file path")
 	args = parser.parse_args()
 	simulate(args)
