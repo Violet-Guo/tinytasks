@@ -54,6 +54,19 @@ class TestingSimulation(unittest.TestCase):
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
 
+    def test_one_machine_limited_slots(self):
+        event_handler = EventHandler()
+        task_queue = Queue()
+        task_queue.put(ReduceTask("test reduce task", 1, 1, 1))
+        task_queue.put(ReduceTask("test reduce task", 1, 1, 1))
+        machine = Machine(0, 2, event_handler, task_queue, 2, 1, 2)
+        machine.start()
+        event_handler.run()
+        three_run = {DISK_STAGE: {0: 2, 0.5: 2, 1:0}, CPU_STAGE: {0: 2, 1:2}, NETWORK_STAGE: {0: 2, 0.5: 0, 1:2}} 
+        self.assertEqual(machine.total_counts, three_run)
+        self.assertFalse(machine.is_full())
+        self.assertTrue(machine.is_empty())
+
     def test_map_tasks(self):
         data_file = "data/test_map.data"
         parser = Parser(10, 10)

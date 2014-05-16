@@ -71,7 +71,7 @@ class Machine:
 		if new_stage == old_stage:
 			raise Exception("Machine.py: task_transition should lead to a new stage")
 		if self.curr_counts[new_stage] >= self.num_slots_dict[new_stage]:
-			self.resource_queues[current_stage].put(task)
+			self.resource_queues[new_stage].put(task)
 		else:
 			self.curr_counts[new_stage] += 1
 			new_tasks.append(task)
