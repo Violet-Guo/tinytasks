@@ -22,7 +22,7 @@ class TestingSimulation(unittest.TestCase):
         map_task.decrement_one()
         map_task.decrement_one()
         self.assertTrue(map_task.is_complete())
-    
+
     def test_reduce_task(self):
         reduce_task = ReduceTask("test reduce task", 1, 2, 3)
         self.assertFalse(reduce_task.is_complete())
@@ -149,8 +149,7 @@ class TestingSimulation(unittest.TestCase):
         self.assertEqual(machine.total_counts, three_run)
         self.assertFalse(machine.is_full())
         self.assertTrue(machine.is_empty())
-
+   
 if __name__ == '__main__':
     #logging.basicConfig(format='%(levelname)s-%(message)s', level=logging.DEBUG)
     unittest.main()
-

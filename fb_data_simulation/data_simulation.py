@@ -44,7 +44,6 @@ class Simulator:
 		self.event_handler.run()
 		total_time = self.event_handler.curr_time / 1000.0
 		print "FINISHED: total time elapsed (in milliseconds)- ", total_time
-		self.save_counts()	
 
 	def test_run(self):
 		self.run_no_plot()

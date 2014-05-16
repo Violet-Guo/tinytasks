@@ -20,10 +20,11 @@ class EventHandler:
 			if not isinstance(event, StartEvent):
 				logging.debug("TASK: " + str(event.task))
 			self.curr_time = new_time
-			new_event = event.run()
+			new_events = event.run()
 			self.record_task_time(event, new_time)
-			if new_event != None:
-				self.event_queue.put(new_event)
+			if new_events != None:
+				for event in new_events: 
+					self.event_queue.put(event)
 			logging.debug("\n")
 
 	def record_task_time(self, event, time):

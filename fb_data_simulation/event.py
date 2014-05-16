@@ -13,13 +13,13 @@ class Event:
 class StartEvent(Event):
     def run(self):
         new_task = self.machine.add_task(self.time)
+        new_events = []
         self.task = new_task
-        if new_task == None:
-            return
-        else:
+        if new_task != None:
             new_time = self.time + new_task.get_curr_stage_time()
             new_event = TransitionEvent(self.machine, new_time, new_task)
-            return (new_time, new_event)
+            new_events.append((new_time, new_event))
+        return new_events
 
     def __str__(self):
         result = "StartEvent with a time of: " + str(self.time) \
@@ -32,14 +32,19 @@ class TransitionEvent(Event):
         self.task = task
 
     def run(self):
-        self.machine.task_transition(self.time, self.task)
-        new_time = self.time + self.task.get_curr_stage_time()
-    	if self.task.curr_stage == COMPUTING_STAGE:
-            new_event = TransitionEvent(self.machine, new_time, self.task)
-        else:
-            new_event = EndEvent(self.machine, new_time, self.task)
-        logging.debug("ADDING TASK, at time " + str(new_time) + " " + "with task " + str(new_event))
-        return (new_time, new_event)
+        new_tasks = self.machine.task_transition(self.time, self.task)
+        new_events = []
+        if len(new_tasks) == 0:
+            return
+        for task in new_tasks:
+            new_time = self.time + task.get_curr_stage_time()
+            if task.curr_stage == OUTPUT_STAGE:
+                new_event = EndEvent(self.machine, new_time, task)
+            else:
+                new_event = TransitionEvent(self.machine, new_time, self.task)
+            new_events.append((new_time, new_event))
+            logging.debug("ADDING TASK, at time " + str(new_time) + " " + "with task " + str(new_event))
+        return new_events
 
     def __str__(self):
         result = "TransitionEvent with a time of: " + str(self.time) \
@@ -52,8 +57,17 @@ class EndEvent(Event):
         self.task = task
 
     def run(self):
-        self.machine.remove_task(self.task, self.time)
-        return (self.time, StartEvent(self.machine, self.time))
+        new_task = self.machine.remove_task(self.task, self.time)
+        new_events = []
+        if new_task != None:
+            new_time = self.time + new_task.get_curr_stage_time()
+            if task.curr_stage == OUTPUT_STAGE:
+                new_event = EndEvent(self.machine, new_time, task)
+            else:
+                new_event = TransitionEvent(self.machine, new_time, self.task)
+            new_events.append((new_time, new_event))
+        new_events.append((self.time, StartEvent(self.machine, self.time)))
+        return new_events
 
     def __str__(self):
         result = "EndEvent with a time of: " + str(self.time) \
