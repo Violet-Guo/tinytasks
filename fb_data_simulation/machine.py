@@ -15,7 +15,7 @@ class Machine:
 		num_disk_slots, num_cpu_slots, num_network_slots):
 		self.machine_num = machine_num
 		self.num_slots = num_slots
-		self.counts = self.instantiate_counts()
+		self.num_slots_dict = {NETWORK_STAGE: num_network_slots, CPU_STAGE: num_cpu_slots, DISK_STAGE: num_disk_slots}
 		self.event_handler = event_handler
 		self.all_tasks = all_tasks
 		self.curr_counts = {NETWORK_STAGE:0, CPU_STAGE:0, DISK_STAGE:0}
@@ -23,17 +23,20 @@ class Machine:
 		self.num_disk_slots = num_disk_slots
 		self.num_cpu_slots = num_cpu_slots
 		self.num_network_slots = num_network_slots
+		self.total_counts = self.instantiate_counts()
 		self.disk_queue = Queue()
 		self.cpu_queue = Queue()
 		self.network_queue = Queue()
-
+	
 	def instantiate_counts(self):
 		new_counts = {NETWORK_STAGE:{}, CPU_STAGE:{}, DISK_STAGE:{}}
 		for stage in new_counts:
+			num_slots = self.num_slots_dict[stage]
 			new_dict = {}
 			count = 0
-			while count <= self.num_slots:
-				new_dict[count] = 0
+			while count <= num_slots:
+				ratio = (count + 0.0) / num_slots
+				new_dict[ratio] = 0
 				count += 1
 			new_counts[stage] = new_dict
 		return new_counts
@@ -48,9 +51,11 @@ class Machine:
 	def update_counts(self, stage_counts, num_seconds):
 		logging.debug("COUNTS: " + str(stage_counts))
 		for stage in stage_counts.keys():
+			num_slots = self.num_slots_dict[stage]
 			count = stage_counts[stage]
-			self.counts[stage][count] += num_seconds	
-		logging.debug("self.counts: " + str(self.counts))
+			ratio = (count + 0.0) / num_slots
+			self.total_counts[stage][ratio] += num_seconds
+		logging.debug("self.total_counts: " + str(self.total_counts))
 
 	def task_transition(self, new_time, task):
 		time_change = new_time - self.time

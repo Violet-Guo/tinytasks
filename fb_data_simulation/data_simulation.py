@@ -50,12 +50,12 @@ class Simulator:
 		self.run_no_plot()
 		result = []
 		for machine in self.machines:
-			result.append(machine.counts)
+			result.append(machine.total_counts)
 		return result
 
 	def print_counts(self):
 		for machine in self.machines:
-			print( "Machine " + str(machine.machine_num) + " " + str(machine.counts))
+			print( "Machine " + str(machine.machine_num) + " " + str(machine.total_counts))
 
 	def process_task_averages(self):
 		task_times = self.event_handler.task_times
@@ -80,13 +80,13 @@ class Simulator:
 			total_time_str =  "FINISHED: total time elapsed (in milliseconds)- " + str(total_time)
 			f.write(total_time_str)
 			for machine in self.machines:
-				new_machine = "Machine " + str(machine.machine_num) + " " + str(machine.counts) + "\n\n"
+				new_machine = "Machine " + str(machine.machine_num) + " " + str(machine.total_counts) + "\n\n"
 				f.write(new_machine)
 
 	def plot_graphs(self):
 		for machine in self.machines:
-			logging.debug("Machine counts = " + str(machine.counts))
-			plot_results(machine.counts, machine.machine_num)
+			logging.debug("Machine counts = " + str(machine.total_counts))
+			plot_results(machine.total_counts, machine.machine_num)
 
 def plot_results(result, machine_num):
 	input_sum = sum(result[NETWORK_STAGE].values()) + 0.0
